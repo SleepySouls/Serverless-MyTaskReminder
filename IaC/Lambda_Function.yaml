@@ -1,0 +1,181 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  LambdaFunctionMyTaskReminderAddEvent:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_AddEvent_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: MyTaskReminder_AddEvent.zip
+      Runtime: python3.13
+      Handler: MyTaskReminder_AddEvent.lambda_handler
+      Environment:
+        Variables:
+          TableName: !ImportValue 'DynamoDBTable'
+      Role: !ImportValue 'AddRemoveEventRoleArn'
+  
+  LambdaFunctionMyTaskReminderRemoveEvent:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_RemoveEvent_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: MyTaskReminder_RemoveEvent.zip
+      Runtime: python3.13
+      Handler: MyTaskReminder_RemoveEvent.lambda_handler
+      Environment:
+        Variables:
+          TableName: !ImportValue 'DynamoDBTable'
+      Role: !ImportValue 'AddRemoveEventRoleArn'
+
+  LambdaFunctionNotUrgentUnimportantNotification:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_NotUrgentUnimportantNotification_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: NotUrgent-UnimportantNotification.zip
+      Runtime: python3.13
+      Handler: NotUrgent-UnimportantNotification.lambda_handler
+      Environment:
+        Variables:
+          POOLID: !ImportValue 'CognitoUserPoolId'
+          TOPICARN: !ImportValue 'SnsTopicArn'
+      Role: !ImportValue 'LevelNotificationRoleArn'
+
+  LambdaFunctionNotUrgentImportantNotification:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_NotUrgentImportantNotification_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: NotUrgent-ImportantNotification.zip
+      Runtime: python3.13
+      Handler: NotUrgent-ImportantNotification.lambda_handler
+      Environment:
+        Variables:
+          POOLID: !ImportValue 'CognitoUserPoolId'
+          TOPICARN: !ImportValue 'SnsTopicArn'
+      Role: !ImportValue 'LevelNotificationRoleArn'
+
+  LambdaFunctionUrgentUnimportantNotification:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_UrgentUnimportantNotification_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: Urgent-UnimportantNotification.zip
+      Runtime: python3.13
+      Handler: Urgent-UnimportantNotification.lambda_handler
+      Environment:
+        Variables:
+          POOLID: !ImportValue 'CognitoUserPoolId'
+          TOPICARN: !ImportValue 'SnsTopicArn'
+      Role: !ImportValue 'LevelNotificationRoleArn'
+
+  LambdaFunctionUrgentImportantNotification:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_UrgentImportantNotification_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: Urgent-ImportantNotification.zip
+      Runtime: python3.13
+      Handler: Urgent-ImportantNotification.lambda_handler
+      Environment:
+        Variables:
+          POOLID: !ImportValue 'CognitoUserPoolId'
+          TOPICARN: !ImportValue 'SnsTopicArn'
+      Role: !ImportValue 'LevelNotificationRoleArn'
+
+  LambdaFunctionDynamoDBStreamProcessor:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_DynamoDBStreamProcessor_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: DynamoDBStreamProcessor.zip
+      Runtime: python3.13
+      Handler: DynamoDBStreamProcessor.lambda_handler
+      Environment:
+        Variables:
+          StateMachineArn: !ImportValue 'StepFunctionsExecutionArn'
+      Role: !ImportValue 'DynamoDBStreamProcessorRoleArn'
+
+  LambdaFunctionStepFunctionsExecution:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_StartStateMachine_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: MyTaskReminder_StartStateMachine.zip
+      Runtime: python3.13
+      Handler: MyTaskReminder_StartStateMachine.lambda_handler
+      Role: !ImportValue 'StepFunctionsExecutionRoleArn'
+
+  LambdaFunctionPostConfirmation:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MyTaskReminder_PostConfirmation_Cloudformation
+      Code:
+        S3Bucket: !ImportValue 'S3BucketForLambdaID'
+        S3Key: PostConfirmation.zip
+      Runtime: python3.13
+      Handler: PostConfirmation.lambda_handler
+      Environment:
+        Variables:
+          SNSTopicArn: !ImportValue 'SnsTopicArn'
+      Role: !ImportValue 'PostConfirmationRoleArn'
+
+  LambdaFunctionDynamoDBEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn:
+      - LambdaFunctionDynamoDBStreamProcessor
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      StartingPosition: LATEST
+      EventSourceArn: !ImportValue 'DynamoDBTableStreamArn'
+      FunctionName: !GetAtt LambdaFunctionDynamoDBStreamProcessor.Arn
+
+Outputs:
+  LambdaFunctionMyTaskReminderAddEventArn:
+    Value: !GetAtt LambdaFunctionMyTaskReminderAddEvent.Arn
+    Export:
+      Name: LambdaFunctionMyTaskReminderAddEventArn
+
+  LambdaFunctionMyTaskReminderRemoveEventArn:
+    Value: !GetAtt LambdaFunctionMyTaskReminderRemoveEvent.Arn
+    Export:
+      Name: LambdaFunctionMyTaskReminderRemoveEventArn
+
+  LambdaFunctionNotUrgentUnimportantNotificationArn:
+    Value: !GetAtt LambdaFunctionNotUrgentUnimportantNotification.Arn
+    Export:
+      Name: LambdaFunctionNotUrgentUnimportantNotificationArn
+
+  LambdaFunctionNotUrgentImportantNotificationArn:
+    Value: !GetAtt LambdaFunctionNotUrgentImportantNotification.Arn
+    Export:
+      Name: LambdaFunctionNotUrgentImportantNotificationArn
+
+  LambdaFunctionUrgentUnimportantNotificationArn:
+    Value: !GetAtt LambdaFunctionUrgentUnimportantNotification.Arn
+    Export:
+      Name: LambdaFunctionUrgentUnimportantNotificationArn
+
+  LambdaFunctionUrgentImportantNotificationArn:
+    Value: !GetAtt LambdaFunctionUrgentImportantNotification.Arn
+    Export:
+      Name: LambdaFunctionUrgentImportantNotificationArn
+
+  LambdaFunctionStepFunctionsExecutionArn:
+    Value: !GetAtt LambdaFunctionStepFunctionsExecution.Arn
+    Export:
+      Name: LambdaFunctionStepFunctionsExecutionArn
+
+  LambdaFunctionPostConfirmationArn:
+    Value: !GetAtt LambdaFunctionPostConfirmation.Arn
+    Export:
+      Name: LambdaFunctionPostConfirmationArn
+

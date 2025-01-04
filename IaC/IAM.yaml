@@ -1,0 +1,110 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  LambdaFunctionMyTaskReminderAddRemoveEvent:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyTaskReminderAdd-Remove-EventRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+
+  LambdaFunctionLevelNotification:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyTaskReminderLevelNotificationRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonCognitoPowerUser
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+
+  DynamoDBStreamProcessorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyTaskReminderDynamoDBStreamProcessorRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+
+  StepFunctionsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyTaskReminderStepFunctionsExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - dynamodb.amazonaws.com
+                - "states.amazonaws.com"
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+        - arn:aws:iam::aws:policy/AWSLambdaInvocation-DynamoDB
+
+  LambdaFunctionPostConfirmationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyTaskReminderPostConfirmationRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - dynamodb.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+
+Outputs:
+  AddRemoveEventRoleArn:
+    Value: !GetAtt LambdaFunctionMyTaskReminderAddRemoveEvent.Arn
+    Export:
+      Name: AddRemoveEventRoleArn
+
+  LevelNotificationRoleArn:
+    Value: !GetAtt LambdaFunctionLevelNotification.Arn
+    Export:
+      Name: LevelNotificationRoleArn
+
+  DynamoDBStreamProcessorRoleArn:
+    Value: !GetAtt DynamoDBStreamProcessorRole.Arn
+    Export:
+      Name: DynamoDBStreamProcessorRoleArn
+
+  StepFunctionsExecutionRoleArn:
+    Value: !GetAtt StepFunctionsExecutionRole.Arn
+    Export:
+      Name: StepFunctionsExecutionRoleArn
+
+  PostConfirmationRoleArn:
+    Value: !GetAtt LambdaFunctionPostConfirmationRole.Arn
+    Export:
+      Name: PostConfirmationRoleArn

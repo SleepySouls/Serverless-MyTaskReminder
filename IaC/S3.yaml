@@ -1,0 +1,71 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: cloudformation-mytaskreminder
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  S3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket:
+        Ref: 'S3Bucket'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource:
+              Fn::Join:
+                - ''
+                - - 'arn:aws:s3:::'
+                  - Ref: 'S3Bucket'
+                  - '/*' 
+  S3BucketForLambda:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: cloudformation-mytaskreminder-lambda
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  S3BucketForLambdaPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket:
+        Ref: 'S3BucketForLambda'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource:
+              Fn::Join:
+                - ''
+                - - 'arn:aws:s3:::'
+                  - Ref: 'S3BucketForLambda'
+                  - '/*'  
+
+Outputs:
+  S3BuckeID:
+    Value: !Ref 'S3Bucket'
+    Export:
+      Name: S3BucketID
+  S3BucketForLambdaID:
+    Value: !Ref 'S3BucketForLambda'
+    Export:
+      Name: S3BucketForLambdaID
+  S3BucketEndpoint:
+    Value: !Sub 'https://${S3Bucket}.s3-website-${AWS::Region}.amazonaws.com/login.html'
+    Export:
+      Name: S3BucketEndpoint

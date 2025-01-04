@@ -1,0 +1,45 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: cloudformation-mytaskreminder
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: cloudformation-mytaskreminder-userdata
+      SupportedIdentityProviders:
+        - COGNITO 
+      AllowedOAuthFlowsUserPoolClient: true 
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - phone
+      CallbackURLs: 
+        - !ImportValue 'S3BucketEndpoint'
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Domain: "mytaskreminder"
+      ManagedLoginVersion: "2"
+  CognitoManagedLoginBranding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    Properties:
+      ClientId: !Ref CognitoUserPoolClient
+      UserPoolId: !Ref CognitoUserPool
+      UseCognitoProvidedValues: true
+
+
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: CognitoUserPoolId

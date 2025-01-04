@@ -1,0 +1,13 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  SnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: cloudformation-mytaskreminder
+      DisplayName: cloudformation-mytaskreminder
+
+Outputs:
+  SnsTopicArn:
+    Value: !Ref SnsTopic
+    Export:
+      Name: SnsTopicArn

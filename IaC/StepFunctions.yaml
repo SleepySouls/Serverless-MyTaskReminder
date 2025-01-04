@@ -1,0 +1,16 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  StepFunctionsExecution:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: MyTaskReminder_StateMachine_Cloudformation
+      DefinitionS3Location:
+        Bucket: !ImportValue 'S3BucketForLambdaID'
+        Key: StateMachine.json
+      RoleArn: !ImportValue 'StepFunctionsExecutionRoleArn'
+
+Outputs:
+  StepFunctionsExecutionArn:
+    Value: !GetAtt StepFunctionsExecution.Arn
+    Export:
+      Name: StepFunctionsExecutionArn
