@@ -1,0 +1,16 @@
+project:
+  name: mytaskreminder-taskcat-test-run
+  regions: 
+    - ap-southeast-1
+  
+tests:
+    vpc:
+      template: IaC/vpc.yaml
+    natgateway:
+      template: IaC/nat_gateway.yaml
+    routetable:
+      template: IaC/route_tables.yaml
+    securitygroups:
+      template: IaC/security_groups.yaml
+    ec2:
+      template: IaC/ec2_instances.yaml
