@@ -7,3 +7,58 @@ Resources:
       EndpointConfiguration:
         Types:
           - REGIONAL
+
+  PostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref APIGateway
+      ResourceId: !GetAtt APIGateway.RootResourceId
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AddEventLambdaFunctionArn}/invocations
+          - AddEventLambdaFunctionArn: !ImportValue LambdaFunctionMyTaskReminderAddEventArn
+        PassthroughBehavior: WHEN_NO_MATCH
+        IntegrationResponses:
+          - ContentHandling:
+            StatusCode: 200
+            ResponseParameters:
+                method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: |
+                
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true 
+
+
+  DeleteMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref APIGateway
+      ResourceId: !GetAtt APIGateway.RootResourceId
+      HttpMethod: DELETE
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RemoveEventLambdaFunctionArn}/invocations
+          - RemoveEventLambdaFunctionArn: !ImportValue LambdaFunctionMyTaskReminderRemoveEventArn
+        PassthroughBehavior: WHEN_NO_MATCH
+        IntegrationResponses:
+          - ContentHandling:
+            StatusCode: 200
+            ResponseParameters:
+                method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: |
+                
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true       
