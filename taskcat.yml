@@ -4,13 +4,19 @@ project:
     - ap-southeast-1
   
 tests:
-    vpc:
-      template: IaC/vpc.yaml
-    natgateway:
-      template: IaC/nat_gateway.yaml
-    routetable:
-      template: IaC/route_tables.yaml
-    securitygroups:
-      template: IaC/security_groups.yaml
-    ec2:
-      template: IaC/ec2_instances.yaml
+    sns:
+      template: IaC/SNS.yaml
+    s3:
+      template: IaC/S3.yaml
+    lambda:
+      template: IaC/Lambda_Function.yaml
+    apigateway:
+      template: IaC/ApiGateway.yaml
+    dynamodb:
+      template: IaC/DynamoDB.yaml
+    stepfunctions:
+      template: IaC/StepFunctions.yaml
+    IAM:
+      template: IaC/IAM.yaml
+    Cognito:
+      template: IaC/Cognito.yaml
