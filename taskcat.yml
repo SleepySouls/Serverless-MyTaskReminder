@@ -11,7 +11,7 @@ tests:
     lambda:
       template: IaC/Lambda_Function.yaml
     apigateway:
-      template: IaC/ApiGateway.yaml
+      template: IaC/APIGateway.yaml
     dynamodb:
       template: IaC/DynamoDB.yaml
     stepfunctions:
