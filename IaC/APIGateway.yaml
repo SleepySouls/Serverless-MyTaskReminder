@@ -23,8 +23,7 @@ Resources:
           - AddEventLambdaFunctionArn: !ImportValue LambdaFunctionMyTaskReminderAddEventArn
         PassthroughBehavior: WHEN_NO_MATCH
         IntegrationResponses:
-          - ContentHandling:
-            StatusCode: 200
+          - StatusCode: 200
             ResponseParameters:
                 method.response.header.Access-Control-Allow-Origin: "'*'"
             ResponseTemplates:
@@ -51,8 +50,7 @@ Resources:
           - RemoveEventLambdaFunctionArn: !ImportValue LambdaFunctionMyTaskReminderRemoveEventArn
         PassthroughBehavior: WHEN_NO_MATCH
         IntegrationResponses:
-          - ContentHandling:
-            StatusCode: 200
+          - StatusCode: 200
             ResponseParameters:
                 method.response.header.Access-Control-Allow-Origin: "'*'"
             ResponseTemplates:
