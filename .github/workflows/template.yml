@@ -25,6 +25,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{secrets.AWS_REGION}}
+
       # Runs a single command using the runners shell
       - name: Setup Cloud Formation Linter with Latest Version
         uses: scottbrenner/cfn-lint-action@v2
@@ -33,3 +40,8 @@ jobs:
       - name: Run linter
         run: |
           cfn-lint IaC/*.yaml || true
+
+      - name: Run taskcat
+        run: |
+          pip install taskcat
+          taskcat lint --input-file taskcat.yml
